@@ -38,8 +38,8 @@ export class UserService {
     const { input, firstName, lastName } = findUserDto;
     let user: User | undefined;
 
-    // Determine if the input is an email or username
-    const isEmail = input.includes('@') && input.includes('.');
+    const isEmail = /\S+@\S+\.\S+/.test(input);
+    console.log(isEmail);
 
     if (isEmail && firstName && lastName) {
       user = await this.usersRepository.findOne({
@@ -52,18 +52,21 @@ export class UserService {
     }
 
     if (user) {
+      console.log(user);
       const { username, id } = user;
       let userData = await this.dataRepository.findOne({
         where: { id, username },
       });
 
       if (!userData) {
+        console.log('line 62');
         userData = this.dataRepository.create({
           id,
           username,
           loggedIn: true,
         });
       } else {
+        console.log('line 69');
         userData.loggedIn = true;
       }
 
@@ -84,12 +87,14 @@ export class UserService {
   }
 
   async createUser(createUserDto: UserDto): Promise<User | undefined> {
-    const { username, firstName, lastName, position } = createUserDto;
-    if (username && firstName && lastName) {
+    const { username, firstName, lastName, email, position } = createUserDto;
+
+    if (username && firstName && lastName && email) {
       const user = this.usersRepository.create({
         username,
         firstName,
         lastName,
+        email,
         position,
       });
 
@@ -108,7 +113,7 @@ export class DataService {
     private dataRepository: Repository<Data>,
   ) {}
 
-  async saveProgress(saveProgressDto: DataDto): Promise<object | undefined> {
+  async saveProgress(saveProgressDto: DataDto): Promise<Data | undefined> {
     const { logicQuestions, username, codeChallenge } = saveProgressDto;
 
     const userData = await this.dataRepository.findOne({
@@ -139,5 +144,29 @@ export class DataService {
     }
 
     throw new Error('User is not logged in.');
+  }
+
+  async logOut(dataDto: {
+    id: string;
+    username: string;
+    loggedIn: boolean;
+  }): Promise<Data | undefined> {
+    const { id, username, loggedIn } = dataDto;
+
+    if (loggedIn) {
+      const userInfo = await this.dataRepository.findOne({
+        where: { id, username },
+      });
+
+      if (userInfo) {
+        userInfo.loggedIn = false;
+
+        await this.dataRepository.save(userInfo);
+
+        return userInfo;
+      }
+    }
+
+    return undefined;
   }
 }

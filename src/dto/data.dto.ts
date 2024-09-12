@@ -14,5 +14,5 @@ export class DataDto {
   logicQuestions?: any;
 
   @IsOptional()
-  codeChallenge?: any;
+  codeChallenge?: string;
 }

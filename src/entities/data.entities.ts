@@ -4,7 +4,7 @@ import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class Data {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column()
@@ -14,8 +14,8 @@ export class Data {
   loggedIn: boolean;
 
   @Column('jsonb', { nullable: true })
-  logicQuestions: any;
+  logicQuestions?: any;
 
-  @Column('jsonb', { nullable: true })
-  codeChallenge: any;
+  @Column({ nullable: true })
+  codeChallenge?: string;
 }

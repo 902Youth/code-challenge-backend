@@ -6,11 +6,13 @@ import {
   UsePipes,
   ValidationPipe,
   Post,
+  Put,
 } from '@nestjs/common';
 import { AppService, DataService, UserService } from './app.service';
 import { User } from './entities/user.entities';
 import { UserDto } from './dto/user.dto';
 import { Data } from './entities/data.entities';
+import { DataDto } from './dto/data.dto';
 
 //controller invokes function from service
 
@@ -34,12 +36,12 @@ export class UserController {
     return this.userService.findAll();
   }
 
-  @Get('findUserAndValidate')
+  @Post('findUserAndValidate')
   @UsePipes(new ValidationPipe({ transform: true }))
   async findUserAndValidate(
-    @Query() query: UserDto,
+    @Body() data: UserDto,
   ): Promise<{ message: string; user?: User }> {
-    return this.userService.findUserAndValidate(query);
+    return this.userService.findUserAndValidate(data);
   }
 
   @Get('findAllUsernames')
@@ -66,5 +68,37 @@ export class DataController {
     @Query('loggedIn') loggedIn: boolean,
   ): Promise<Data[]> {
     return this.dataService.getAllDataForUser({ id, username, loggedIn });
+  }
+
+  @Post('saveProgress')
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async saveProgress(
+    @Body() data: DataDto,
+  ): Promise<{ message: string; payload?: Data }> {
+    try {
+      const savedData = await this.dataService.saveProgress(data);
+      if (!savedData) {
+        throw new Error('Failed to save progress.');
+      }
+      return { message: 'Progress saved successfully', payload: savedData };
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  @Put('logOut')
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async logOut(
+    @Body() data: DataDto,
+  ): Promise<{ message: string; payload?: Data }> {
+    try {
+      const logOutUser = await this.dataService.logOut(data);
+      if (!logOutUser) {
+        throw new Error('Failed to log out');
+      }
+      return { message: 'User has been logged out', payload: logOutUser };
+    } catch (error) {
+      console.log(error);
+    }
   }
 }

@@ -1,17 +1,17 @@
-import { IsUUID, IsString, IsEmail } from 'class-validator';
+import { IsString, IsEmail, IsOptional } from 'class-validator';
 
 export class UserDto {
-  @IsUUID()
-  id: string;
-
+  @IsOptional()
   @IsString()
-  username: string;
+  username?: string;
 
+  @IsOptional()
   @IsEmail()
-  email: string;
+  email?: string;
 
+  @IsOptional()
   @IsString()
-  input: string;
+  input?: string;
 
   @IsString()
   firstName: string;
@@ -19,6 +19,7 @@ export class UserDto {
   @IsString()
   lastName: string;
 
+  @IsOptional()
   @IsString()
-  position: string;
+  position?: string;
 }
